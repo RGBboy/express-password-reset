@@ -181,6 +181,52 @@ describe('Password Reset', function () {
 
     });
 
+    describe('when incorrect credentials are POSTed', function () {
+
+      it('should show an error if email is missing', function (done) {
+        request.agent()
+          .post(urls.create)
+          .send({ 
+            user: {}
+          })
+          .end(function (err, res) {
+            res.text.should.include('<title>Password Reset</title>')
+            res.text.should.include('Please enter a valid email address.');
+            done();
+          });
+      });
+
+      it('should show an error if email is empty', function (done) {
+        request.agent()
+          .post(urls.create)
+          .send({ 
+            user: {
+              email: ''
+            }
+          })
+          .end(function (err, res) {
+            res.text.should.include('<title>Password Reset</title>')
+            res.text.should.include('Please enter a valid email address.');
+            done();
+          });
+      });
+
+      it('should show an error if email is invalid', function (done) {
+        request.agent()
+          .post(urls.create)
+          .send({ 
+            user: {
+              email: 'testtest.com'
+            }
+          })
+          .end(function (err, res) {
+            res.text.should.include('<title>Password Reset</title>')
+            res.text.should.include('Please enter a valid email address.');
+            done();
+          });
+      });
+    });
+
   });
 
 });
