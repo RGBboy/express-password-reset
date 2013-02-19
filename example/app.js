@@ -13,6 +13,7 @@ var express = require('express'),
     Storekeeper = require('storekeeper'),
     namedRoutes = require('express-named-routes'),
     attach = require('attach'),
+    siphon = require('siphon'),
     flash = require('express-flash'),
     authenticate = require('express-authenticate'),
     UserSchema = require('basic-user-schema'),
@@ -34,7 +35,11 @@ exports = module.exports = function (config) {
         }
       },
       signin = Signin(shared),
-      passwordReset = PasswordReset(shared);
+      passwordReset = PasswordReset(shared),
+      components = [
+        signin,
+        passwordReset
+        ];
 
   namedRoutes.extend(self);
   attach.extend(self);
@@ -71,9 +76,9 @@ exports = module.exports = function (config) {
     self.use(flash());
 
     // Sign In
-
     self.attach('signin', signin);
 
+    // Password Reset
     self.attach('password-reset', passwordReset);
 
     self.get('/', function (req, res) {
@@ -87,12 +92,13 @@ exports = module.exports = function (config) {
 
   };
 
-  function ready () {
-    self.emit('ready');
-  };
+  siphon('init', components, function () {
+    init();
+  });
 
-  signin.on('init', init);
-  signin.on('ready', ready);
+  siphon('ready', components, function () {
+    self.emit('ready', self);
+  });
 
   return self;
 
