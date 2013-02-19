@@ -1,3 +1,7 @@
 language: node_js
 node_js:
   - 0.8
+services:
+  - mongodb
+before_script:
+  - mongo express-password-reset-test --eval 'db.addUser("express-password-reset-test", "express-password-reset-test");'

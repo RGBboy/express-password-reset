@@ -2,6 +2,7 @@
 .git*
 .travis*
 Makefile
-example/
 test/
+example/
+data/
 *.tmproj
