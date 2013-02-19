@@ -155,6 +155,22 @@ describe('Password Reset', function () {
 
     });
 
+    describe('when nothing is POSTed', function () {
+
+      it('should redirect back to /password-reset', function (done) {
+        request.agent()
+          .post(urls.create)
+          .redirects(0)
+          .send({})
+          .end(function (err, res) {
+            res.headers.should.have.property('location').match(/\/password-reset$/);
+            res.statusCode.should.equal(302)
+            done();
+          });
+      });
+
+    });
+
   });
 
 });
