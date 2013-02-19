@@ -2,7 +2,7 @@ extends ../layout
 
 block content
   form.password-reset.form-horizontal(action = '/password-reset/update', method = 'post')
-    input(type = 'hidden', name='user[emailToken]', value = user.emailToken)
+    input(type = 'hidden', name='user[resetToken]', value = user.resetToken)
     .control-group
       label.control-label(for = 'user-password') Password:
       .controls

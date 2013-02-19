@@ -85,7 +85,7 @@ describe('Password Reset', function () {
   describe('GET /password-reset', function () {
 
     it('should render the password reset page', function (done) {
-      request
+      request.agent()
         .get(urls.new)
         .redirects(0)
         .end(function (err, res) {
@@ -130,15 +130,15 @@ describe('Password Reset', function () {
           });
       });
 
-      it('should send an email to the user with an emailToken url', function (done) {
+      it('should send an email to the user with an resetToken url', function (done) {
         mailbox.once('newMail', function (mail) {
           mail.should.exist;
-          var emailTokenAnchorRE = /<a(:?.*?)class="(:?emailToken|(:?.*?) emailToken)(:?.*?)"(:?.*?)>(:?.*?)<\/a>/gi;
-          var emailTokenAnchor = mail.html.match(emailTokenAnchorRE)[0];
-          var emailTokenURLRE = /href="(.*?)"/gi;
-          var emailTokenURL = emailTokenURLRE.exec(emailTokenAnchor);
+          var resetTokenAnchorRE = /<a(:?.*?)class="(:?resetToken|(:?.*?) resetToken)(:?.*?)"(:?.*?)>(:?.*?)<\/a>/gi;
+          var resetTokenAnchor = mail.html.match(resetTokenAnchorRE)[0];
+          var resetTokenURLRE = /href="(.*?)"/gi;
+          var resetTokenURL = resetTokenURLRE.exec(resetTokenAnchor);
           UserModel.findOne({ email: fakeUser.email}, function(err, user) {
-            emailTokenURL[1].should.equal(urls.edit + '?emailToken=' + user.emailToken);
+            resetTokenURL[1].should.equal(urls.edit + '?resetToken=' + user.resetToken);
             done();
           });
         });
