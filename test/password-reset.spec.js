@@ -229,4 +229,21 @@ describe('Password Reset', function () {
 
   });
 
+  describe('GET /password-reset/edit?resetToken=x', function () {
+
+    it('should render the edit page', function (done) {
+
+      request.agent()
+        .get(urls.edit + '?resetToken=abc123')
+        .redirects(0)
+        .end(function (err, res) {
+          res.statusCode.should.equal(200);
+          res.text.should.include('<title>Password Reset</title>');
+          // Should contain password fields
+          done();
+        })
+
+    });
+
+  });
 });
