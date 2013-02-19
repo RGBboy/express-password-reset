@@ -55,6 +55,7 @@ describe('Password Reset', function () {
 
       urls.new = baseURL + '/password-reset';
       urls.create = urls.new;
+      urls.edit = urls.new + '/edit';
 
       var newUser;
 
@@ -116,10 +117,6 @@ describe('Password Reset', function () {
       });
 
       it('should instruct the user to check their email', function (done) {
-        mailbox.once('newMail', function (mail) {
-          done();
-        });
-
         request.agent()
           .post(urls.create)
           .send({ 
@@ -129,10 +126,11 @@ describe('Password Reset', function () {
           })
           .end(function (err, res) {
             res.text.should.include('Please check your email for instructions on resetting your password.');
+            done();
           });
       });
 
-      it('should send an email to the user with an emailToken', function (done) {
+      it('should send an email to the user with an emailToken url', function (done) {
         mailbox.once('newMail', function (mail) {
           mail.should.exist;
           var emailTokenAnchorRE = /<a(:?.*?)class="(:?emailToken|(:?.*?) emailToken)(:?.*?)"(:?.*?)>(:?.*?)<\/a>/gi;
