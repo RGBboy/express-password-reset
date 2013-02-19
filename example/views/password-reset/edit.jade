@@ -1,0 +1,15 @@
+extends ../layout
+
+block content
+  form.password-reset.form-horizontal(action = '/password-reset/update', method = 'post')
+    input(type = 'hidden', name='user[emailToken]', value = user.emailToken)
+    .control-group
+      label.control-label(for = 'user-password') Password:
+      .controls
+        input#user-password(type = 'password', name = 'user[password]', placeholder = 'Password')
+    .control-group
+      label.control-label(for = 'user-password-confirm') Confirm Password:
+      .controls
+        input#user-password-confirm(type = 'password', name = 'user[passwordConfirm]', placeholder = 'Confirm Password')
+    .form-actions
+      button.btn(type = 'submit') Reset Password
