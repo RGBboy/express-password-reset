@@ -169,6 +169,17 @@ describe('Password Reset', function () {
           });
       });
 
+      it('should display an error message', function (done) {
+        request.agent()
+          .post(urls.create)
+          .send({})
+          .end(function (err, res) {
+            res.text.should.include('Please enter a valid email address.');
+            done();
+          });
+        done();
+      });
+
     });
 
   });
