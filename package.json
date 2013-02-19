@@ -22,6 +22,7 @@
     "express-named-routes": "0.0.x",
     "attach": "0.0.x",
     "storekeeper": "0.0.x",
+    "siphon": "0.0.x",
     "express-flash": "git://github.com/RGBboy/express-flash.git",
     "express-signin": "0.0.x",
     "express-mailer": "0.1.x",
