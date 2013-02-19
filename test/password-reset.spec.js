@@ -177,7 +177,6 @@ describe('Password Reset', function () {
             res.text.should.include('Please enter a valid email address.');
             done();
           });
-        done();
       });
 
     });
