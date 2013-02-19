@@ -13,6 +13,7 @@ var App = require('../example/app'),
     fs = require('fs'),
     https = require('https'),
     config = require('../example/config'),
+    mongoose = require('mongoose'),
     Mailbox = require('test-mailbox'),
     request = require('superagent'),
     should = require('should');
@@ -24,6 +25,12 @@ var App = require('../example/app'),
 describe('Password Reset', function () {
 
   var app,
+      UserModel,
+      fakeUser = {
+        email: 'test@test.com',
+        password: 'testPassword'
+      },
+      user,
       baseURL,
       server,
       urls = {},
@@ -34,6 +41,7 @@ describe('Password Reset', function () {
     app = App(config);
 
     app.on('ready', function () {
+      UserModel = mongoose.model('User');
       if (!app.address) {
         server = server = https.createServer({
           key: fs.readFileSync(__dirname + '/../example/ssl/key.pem'),
@@ -46,8 +54,22 @@ describe('Password Reset', function () {
       };
 
       urls.new = baseURL + '/password-reset';
+      urls.create = urls.new;
 
-      done();
+      var newUser;
+
+      UserModel.remove(function (err) {
+        if (err) { throw err };
+        newUser = new UserModel({
+          email: fakeUser.email,
+          password: fakeUser.password,
+          passwordConfirm: fakeUser.password
+        });
+        newUser.save(function (err, user) {
+          user = user;
+          done();
+        });
+      });
 
     });
   });
@@ -71,6 +93,68 @@ describe('Password Reset', function () {
           // should have a form with email, password and passwordConfirm field
           done();
         });
+    });
+
+  });
+
+  describe('POST /password-reset', function () {
+
+    describe('when correct credentials are POSTed', function () {
+
+      var mailbox;
+
+      before(function (done) {
+        mailbox = new Mailbox({
+          address: fakeUser.email,
+          auth: config.mailer.auth
+        });
+        mailbox.listen(config.mailer.port, done);
+      });
+
+      after(function (done) {
+        mailbox.close(done);
+      });
+
+      it('should instruct the user to check their email', function (done) {
+        mailbox.once('newMail', function (mail) {
+          done();
+        });
+
+        request.agent()
+          .post(urls.create)
+          .send({ 
+            user: {
+              email: fakeUser.email
+            },
+          })
+          .end(function (err, res) {
+            res.text.should.include('Please check your email for instructions on resetting your password.');
+          });
+      });
+
+      it('should send an email to the user with an emailToken', function (done) {
+        mailbox.once('newMail', function (mail) {
+          mail.should.exist;
+          var emailTokenAnchorRE = /<a(:?.*?)class="(:?emailToken|(:?.*?) emailToken)(:?.*?)"(:?.*?)>(:?.*?)<\/a>/gi;
+          var emailTokenAnchor = mail.html.match(emailTokenAnchorRE)[0];
+          var emailTokenURLRE = /href="(.*?)"/gi;
+          var emailTokenURL = emailTokenURLRE.exec(emailTokenAnchor);
+          UserModel.findOne({ email: fakeUser.email}, function(err, user) {
+            emailTokenURL[1].should.equal(urls.edit + '?emailToken=' + user.emailToken);
+            done();
+          });
+        });
+        request
+          .post(urls.create)
+          .redirects(0)
+          .send({ 
+            user: {
+              email: fakeUser.email
+            }
+          })
+          .end();
+      });
+
     });
 
   });
