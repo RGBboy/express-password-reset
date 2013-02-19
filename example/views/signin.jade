@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  form.signin.form-horizontal(action = '/signin', method = 'post')
+    .control-group
+      label.control-label(for = 'user-email') Email:
+      .controls
+        input#user-email(type = 'email', name='user[email]', placeholder = 'Email', value = user.email)
+    .control-group
+      label.control-label(for = 'user-password') Password:
+      .controls
+        input#user-password(type = 'password', name = 'user[password]', placeholder = 'Password')
+        span.help-block 
+          a(href = '/password-reset') Forgotten your password?
+    .form-actions
+      button.btn(type = 'submit') Sign In

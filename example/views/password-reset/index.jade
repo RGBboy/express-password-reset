@@ -1,0 +1,10 @@
+extends ../layout
+
+block content
+  form.signin.form-horizontal(action = '/password-reset', method = 'post')
+    .control-group
+      label.control-label(for = 'user-email') Email:
+      .controls
+        input#user-email(type = 'email', name='user[email]', placeholder = 'Email', value = user.email)
+    .form-actions
+      button.btn(type = 'submit') Reset Password
