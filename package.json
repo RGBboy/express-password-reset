@@ -13,7 +13,8 @@
     "node": "0.8.x"
   },
   "dependencies": {
-    "routable": "git://github.com/RGBboy/routable.git"
+    "routable": "git://github.com/RGBboy/routable.git",
+    "urlsafe-base64": "0.0.x"
   },
   "devDependencies": {
     "express": "3.0.x",
