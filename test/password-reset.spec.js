@@ -28,7 +28,7 @@ describe('Password Reset', function () {
       UserModel,
       fakeUser = {
         email: 'test@test.com',
-        password: 'testPassword'
+        password: 'originalPassword'
       },
       user,
       baseURL,
@@ -56,6 +56,7 @@ describe('Password Reset', function () {
       urls.new = baseURL + '/password-reset';
       urls.create = urls.new;
       urls.edit = urls.new + '/edit';
+      urls.update =  urls.new + '/update';
 
       var newUser;
 
@@ -316,6 +317,95 @@ describe('Password Reset', function () {
           .end(function (err, res) {
             res.text.should.include('<title>Password Reset</title>')
             res.text.should.include('Your reset token is invalid.');
+            done();
+          });
+      });
+
+    });
+
+  });
+
+  describe('POST /password-reset/update', function () {
+
+    var mailbox,
+        updatedUser= {
+          resetToken: '',
+          password: 'newPassword',
+          passwordConfirm: 'newPassword'
+        };
+
+    before(function (done) {
+      mailbox = new Mailbox({
+        address: fakeUser.email,
+        auth: config.mailer.auth
+      });
+      mailbox.listen(config.mailer.port, done);
+    });
+
+    after(function (done) {
+      mailbox.close(done);
+    });
+
+    beforeEach(function (done) {
+      mailbox.once('newMail', function (mail) {
+        var resetTokenAnchorRE = /<a(:?.*?)class="(:?resetToken|(:?.*?) resetToken)(:?.*?)"(:?.*?)>(:?.*?)<\/a>/gi;
+        var resetTokenAnchor = mail.html.match(resetTokenAnchorRE)[0];
+        var resetTokenRE = /href=".*?\?resetToken=(.*?)"/gi;
+        updatedUser.resetToken = resetTokenRE.exec(resetTokenAnchor)[1];
+        done();
+      });
+      request
+        .post(urls.create)
+        .redirects(0)
+        .send({ 
+          user: {
+            email: fakeUser.email
+          }
+        })
+        .end();
+    });
+
+    describe('when correct credentials are POSTed', function () {
+
+      it('should update the users password', function (done) {
+        request
+          .post(urls.update)
+          .send({ 
+            user: updatedUser
+          })
+          .end(function (err, res) {
+            UserModel.findOne({ email: fakeUser.email}, function(err, user) {
+              user.authenticate(updatedUser.password, function (err, isMatch) {
+                isMatch.should.be.true;
+                done();
+              });
+            });
+          });
+      });
+
+      it('should redirect to /signin', function (done) {
+        request
+          .post(urls.update)
+          .redirects(0)
+          .send({ 
+            user: updatedUser
+          })
+          .end(function (err, res) {
+            res.statusCode.should.equal(302)
+            res.headers.should.have.property('location').match(/\/signin$/);
+            done();
+          });
+      });
+
+      it('should render a success message', function (done) {
+        request
+          .post(urls.update)
+          .redirects(0)
+          .send({ 
+            user: updatedUser
+          })
+          .end(function (err, res) {
+            res.text.should.include('Your password has been successfully reset. Please sign in.');
             done();
           });
       });
