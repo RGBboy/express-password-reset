@@ -274,7 +274,7 @@ describe('Password Reset', function () {
           .get(urls.edit + '?resetToken=abc+123')
           .end(function (err, res) {
             res.text.should.include('<title>Password Reset</title>')
-            res.text.should.include('Your token is invalid.');
+            res.text.should.include('Your reset token is invalid.');
             done();
           });
       });
@@ -299,7 +299,7 @@ describe('Password Reset', function () {
           .get(urls.edit + '?resetToken=abc+123')
           .end(function (err, res) {
             res.text.should.include('<title>Password Reset</title>')
-            res.text.should.include('Your token is invalid.');
+            res.text.should.include('Your reset token is invalid.');
             done();
           });
       });
