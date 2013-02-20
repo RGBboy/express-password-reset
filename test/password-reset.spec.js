@@ -231,32 +231,81 @@ describe('Password Reset', function () {
 
   describe('GET /password-reset/edit', function () {
 
-    it('should render the edit page', function (done) {
+    describe('when resetToken query is URL Safe base64', function () {
 
-      request.agent()
-        .get(urls.edit)
-        .redirects(0)
-        .end(function (err, res) {
-          res.statusCode.should.equal(200);
-          res.text.should.include('<title>Password Reset</title>');
-          done();
-        })
+      it('should render the edit page', function (done) {
+        request.agent()
+          .get(urls.edit + '?resetToken=abc_-123')
+          .redirects(0)
+          .end(function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.include('<title>Password Reset</title>');
+            done();
+          });
+      });
+
+      it('should render a resetToken field with the query value', function (done) {
+        request.agent()
+          .get(urls.edit + '?resetToken=abc_-123')
+          .redirects(0)
+          .end(function (err, res) {
+            res.text.should.include('<input type="hidden" name="user[resetToken]" value="abc_-123">')
+            done();
+          });
+      });
 
     });
 
-    it('should render the edit page with resetToken field', function (done) {
+    describe('when resetToken query is not URL Safe base64', function () {
 
-      request.agent()
-        .get(urls.edit + '?resetToken=abc123')
-        .redirects(0)
-        .end(function (err, res) {
-          res.statusCode.should.equal(200);
-          res.text.should.include('<title>Password Reset</title>');
-          res.text.should.include('<input type="hidden" name="user[resetToken]" value="abc123">')
-          done();
-        })
+      it('should redirect to /password-reset', function (done) {
+        request.agent()
+          .get(urls.edit + '?resetToken=abc+123')
+          .redirects(0)
+          .end(function (err, res) {
+            res.headers.should.have.property('location').match(/\/password-reset$/);
+            res.statusCode.should.equal(302);
+            done();
+          });
+      });
+
+      it('should render an error message', function (done) {
+        request.agent()
+          .get(urls.edit + '?resetToken=abc+123')
+          .end(function (err, res) {
+            res.text.should.include('<title>Password Reset</title>')
+            res.text.should.include('Your token is invalid.');
+            done();
+          });
+      });
+
+    });
+
+    describe('when resetToken query is not sent', function () {
+
+      it('should redirect to /password-reset', function (done) {
+        request.agent()
+          .get(urls.edit)
+          .redirects(0)
+          .end(function (err, res) {
+            res.headers.should.have.property('location').match(/\/password-reset$/);
+            res.statusCode.should.equal(302);
+            done();
+          });
+      });
+
+      it('should render an error message', function (done) {
+        request.agent()
+          .get(urls.edit + '?resetToken=abc+123')
+          .end(function (err, res) {
+            res.text.should.include('<title>Password Reset</title>')
+            res.text.should.include('Your token is invalid.');
+            done();
+          });
+      });
 
     });
 
   });
+
 });
