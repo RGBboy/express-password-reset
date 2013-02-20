@@ -328,11 +328,7 @@ describe('Password Reset', function () {
   describe('POST /password-reset/update', function () {
 
     var mailbox,
-        updatedUser= {
-          resetToken: '',
-          password: 'newPassword',
-          passwordConfirm: 'newPassword'
-        };
+        updatedUser;
 
     before(function (done) {
       mailbox = new Mailbox({
@@ -347,6 +343,11 @@ describe('Password Reset', function () {
     });
 
     beforeEach(function (done) {
+      updatedUser = {
+        password: 'newPassword',
+        passwordConfirm: 'newPassword'
+      };
+
       mailbox.once('newMail', function (mail) {
         var resetTokenAnchorRE = /<a(:?.*?)class="(:?resetToken|(:?.*?) resetToken)(:?.*?)"(:?.*?)>(:?.*?)<\/a>/gi;
         var resetTokenAnchor = mail.html.match(resetTokenAnchorRE)[0];
@@ -434,7 +435,129 @@ describe('Password Reset', function () {
             done();
           });
       });
-      
+
+    });
+
+    describe('when incorrect credentials are POSTed', function () {
+
+      it('should redirect back to the edit route', function (done) {
+        request.agent()
+          .post(urls.update)
+          .redirects(0)
+          .send({ 
+            user: {}
+          })
+          .end(function (err, res) {
+            res.headers.should.have.property('location').match(/\/password-reset\/edit$/);
+            res.statusCode.should.equal(302)
+            done();
+          });
+      });
+
+      it('should show an error if resetToken is missing', function (done) {
+        delete updatedUser.resetToken;
+        request.agent()
+          .post(urls.update)
+          .send({ 
+            user: updatedUser
+          })
+          .end(function (err, res) {
+            res.text.should.include('Something went wrong. Please try again.');
+            done();
+          });
+      });
+
+      it('should show an error if resetToken is empty', function (done) {
+        updatedUser.resetToken = '';
+        request.agent()
+          .post(urls.update)
+          .send({ 
+            user: updatedUser
+          })
+          .end(function (err, res) {
+            res.text.should.include('Something went wrong. Please try again.');
+            done();
+          });
+      });
+
+      it('should show an error if resetToken is invalid', function (done) {
+        updatedUser.resetToken = 'notTheResetToken';
+        request.agent()
+          .post(urls.update)
+          .send({ 
+            user: updatedUser
+          })
+          .end(function (err, res) {
+            res.text.should.include('Something went wrong. Please try again.');
+            done();
+          });
+      });
+
+      it('should show an error if password is missing', function (done) {
+        delete updatedUser.password;
+        request.agent()
+          .post(urls.update)
+          .send({ 
+            user: updatedUser
+          })
+          .end(function (err, res) {
+            res.text.should.include('Something went wrong. Please try again.');
+            done();
+          });
+      });
+
+      it('should show an error if password is empty', function (done) {
+        updatedUser.password = '';
+        request.agent()
+          .post(urls.update)
+          .send({ 
+            user: updatedUser
+          })
+          .end(function (err, res) {
+            res.text.should.include('Something went wrong. Please try again.');
+            done();
+          });
+      });
+
+      it('should show an error if passwordConfirm is missing', function (done) {
+        delete updatedUser.passwordConfirm;
+        request.agent()
+          .post(urls.update)
+          .send({ 
+            user: updatedUser
+          })
+          .end(function (err, res) {
+            res.text.should.include('Something went wrong. Please try again.');
+            done();
+          });
+      });
+
+      it('should show an error if passwordConfirm is empty', function (done) {
+        updatedUser.passwordConfirm = '';
+        request.agent()
+          .post(urls.update)
+          .send({ 
+            user: updatedUser
+          })
+          .end(function (err, res) {
+            res.text.should.include('Something went wrong. Please try again.');
+            done();
+          });
+      });
+
+      it('should show an error if password does not match passwordConfirm', function (done) {
+        updatedUser.password = 'TestPassword';
+        updatedUser.passwordConfirm = 'NotTestPassword';
+        request.agent()
+          .post(urls.update)
+          .send({ 
+            user: updatedUser
+          })
+          .end(function (err, res) {
+            res.text.should.include('Something went wrong. Please try again.');
+            done();
+          });
+      });
 
     });
 
