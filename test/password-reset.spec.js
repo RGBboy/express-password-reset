@@ -116,6 +116,22 @@ describe('Password Reset', function () {
         mailbox.close(done);
       });
 
+      it('should redirect to /', function (done) {
+        request.agent()
+          .post(urls.create)
+          .redirects(0)
+          .send({ 
+            user: {
+              email: fakeUser.email
+            },
+          })
+          .end(function (err, res) {
+            res.statusCode.should.equal(302)
+            res.headers.should.have.property('location').match(/\/$/);
+            done();
+          });
+      });
+
       it('should instruct the user to check their email', function (done) {
         request.agent()
           .post(urls.create)
