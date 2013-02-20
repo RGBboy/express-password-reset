@@ -16,7 +16,7 @@ Require it:
 
 ``` javascript
   var Signin = require('express-signin'),
-      PasswordReset = require('express-password-reset),
+      PasswordReset = require('express-password-reset'),
       express = require('express'),
       mongoose = require('mongoose'),
       app = express(),
