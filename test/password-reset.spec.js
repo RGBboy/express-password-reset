@@ -411,6 +411,33 @@ describe('Password Reset', function () {
 
     });
 
+    describe('when nothing is POSTed', function () {
+
+      it('should redirect back to /password-reset/edit', function (done) {
+        request.agent()
+          .post(urls.update)
+          .redirects(0)
+          .send({})
+          .end(function (err, res) {
+            res.headers.should.have.property('location').match(/\/password-reset\/edit$/);
+            res.statusCode.should.equal(302)
+            done();
+          });
+      });
+
+      it('should render an error message', function (done) {
+        request.agent()
+          .post(urls.update)
+          .send({})
+          .end(function (err, res) {
+            res.text.should.include('Something went wrong. Please try again.');
+            done();
+          });
+      });
+      
+
+    });
+
   });
 
 });
