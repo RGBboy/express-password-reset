@@ -368,7 +368,7 @@ describe('Password Reset', function () {
     describe('when correct credentials are POSTed', function () {
 
       it('should update the users password', function (done) {
-        request
+        request.agent()
           .post(urls.update)
           .send({ 
             user: updatedUser
@@ -384,7 +384,7 @@ describe('Password Reset', function () {
       });
 
       it('should redirect to /signin', function (done) {
-        request
+        request.agent()
           .post(urls.update)
           .redirects(0)
           .send({ 
@@ -398,9 +398,8 @@ describe('Password Reset', function () {
       });
 
       it('should render a success message', function (done) {
-        request
+        request.agent()
           .post(urls.update)
-          .redirects(0)
           .send({ 
             user: updatedUser
           })
