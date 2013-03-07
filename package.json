@@ -26,7 +26,7 @@
     "siphon": "0.0.x",
     "express-flash": "git://github.com/RGBboy/express-flash.git",
     "express-signin": "0.0.x",
-    "express-mailer": "0.1.x",
+    "express-mailer": "0.2.x",
     "express-authenticate": "0.0.x",
     "basic-user-schema": "git://github.com/RGBboy/basic-user-schema.git",
     "test-mailbox": "0.0.x",
