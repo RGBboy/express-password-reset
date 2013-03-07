@@ -1,6 +1,6 @@
 {
   "name": "express-password-reset",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "User Password Reset for your Express Applications",
   "keywords": ["Express", "Password", "Authentication", "User"],
   "author": "RGBboy <me@rgbboy.com>",
